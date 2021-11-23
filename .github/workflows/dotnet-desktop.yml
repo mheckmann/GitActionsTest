@@ -1,0 +1,41 @@
+name: .NET Desktop
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+    env:
+      Solution_Name: GitActionsTest.sln
+      Test_Project_Path: ConsoleApp1\ConsoleApp1.sln
+      Artifact_Path: ConsoleApp1\bin\
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Build and Publish Web App
+      run: msbuild ${{ env.Solution_Name }} /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Grab Artifacts
+        path: ${{ env.ArtifactDirectory }}\
